@@ -1,23 +1,22 @@
-## Favorites Microfrontend
+## Favorites
 
 ### Context:
-This microfrontend contains one view responsible for presentation of user's favorite products.
+This micro-frontend is responsible for presentation of user's favorite products.
 
 ### Decision Drivers:
-- divide the overall system into logical building blocks
-- ensure the ability to change system parts with affecting others
+- divide the overall application frontend into functionality oriented micro-frontends
+- ensure the ability to change application parts without affecting others
 
 ### Considered Options:
-1. Adding this to Product microfrontend
-2. Separting this as its own microfrontend
-
+1. Combining this functionality with functionalities responsible for presenting product and its details
+2. Separating this functionality as its own micro-frontend
 
 ### Decision Outcome:
-We decided to keep it as a separate to one to faciliate further development and independent testing when more functionalities would be added.
+We have decided to divide this functionality into a separate micro-frontend to facilitate further development and independent testing when more functionalities would be added such as filtering.
 
-### Consequences
-- Good: faciliation of further development by providing possibility to develop and test independently
-- Bad: increased initial overhead by adding another microfrontend
+### Consequences:
+- Good: facilitates further development by providing possibility to develop and test independently, increases flexibility enabling enhancing favorites functionalities without affecting other parts of the application
+- Bad: increases initial overhead and application granularity by adding another micro-frontend
 
-### More information
-We believe that the inital overhead is useful for further development and makes the maintance easier as it solves future issues. 
+### More Information:
+We believe that the initial overhead is acceptable at this stage in order to make further development and maintenance easier as prevents issues arising in the future. 
