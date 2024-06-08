@@ -1,0 +1,1344 @@
+openapi: 3.0.0
+info:
+  description: |
+    API specification for QRmeat application.
+  version: "1.0.0"
+  title: QRmeat
+servers:
+  - url: http://example.com
+    description: placeholder server
+
+tags:
+  - name: UserAuthentication
+    description: Service responsible for authenticating user
+  - name: UserManagement
+    description: Service responsible for managing users' accounts
+  - name: Recommender
+    description: Service responsible for recommending products for users
+  - name: ProductCatalogue
+    description: Service responsible for manging products in each store
+  - name: Store
+    description: Service responsible for managing stores
+  - name: News
+    description: Service responsible for managing news articles
+  - name: Statistics
+    description: Service responsible for managing statistics
+  - name: Favorites
+    description: Service responsible for managing users' favorites
+  - name: Feedback
+    description: Service responsible for managing products' feedback
+  - name: Issue
+    description: Service responsible for reporting issues or feature requests to the developers of the application
+  - name: Price
+    description: Service responsible for managining products' prices
+
+paths:
+  /auth/validate:
+    post:
+      tags:
+        - UserAuthentication
+      summary: Validate a user's token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: string
+                  description: Authentication token
+      responses:
+        "200":
+          description: Valid token
+          content:
+            application/json:
+              schema:
+                properties:
+                  userUID:
+                    type: string
+                    description: User's UID
+        "401":
+          description: Token invalid
+
+  /auth/login:
+    post:
+      tags:
+        - UserAuthentication
+      summary: Autheniticate a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  description: User's email
+                password:
+                  type: string
+                  description: User's password
+      responses:
+        "200":
+          description: Successfully authenticated a user
+          content:
+            application/json:
+              schema:
+                properties:
+                  userUID:
+                    type: string
+                    description: User's UID
+                  token:
+                    type: string
+                    description: Authentication token
+
+  /auth/users:
+    post:
+      tags:
+        - UserAuthentication
+      summary: Add new user credentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  description: User's email
+                password:
+                  type: string
+                  description: User's password
+                passwordConfirmation:
+                  type: string
+                  description: User's password confirmation
+      responses:
+        "201":
+          description: Successfully created new user credentials
+          content:
+            application/json:
+              schema:
+                properties:
+                  userUID:
+                    type: string
+                    description: User's UID
+    delete:
+      tags:
+        - UserAuthentication
+      summary: Delete all user credentials
+      responses:
+        "204":
+          description: Successfully deleted user credentials
+
+  /auth/users/{userUID}/email:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+    put:
+      tags:
+        - UserAuthentication
+      summary: Update user's email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  description: User's new email
+      responses:
+        "204":
+          description: Successfully updated user's email
+
+  /auth/users/{userUID}/password:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+    put:
+      tags:
+        - UserAuthentication
+      summary: Update user's password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                currentPassword:
+                  type: string
+                  description: User's current password
+                newPassword:
+                  type: string
+                  description: User's new password
+                newPasswordConfirmation:
+                  type: string
+                  description: User's new password confirmation
+      responses:
+        "204":
+          description: Successfully updated user's password
+
+  /auth/users/{userUID}:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+    delete:
+      tags:
+        - UserAuthentication
+      summary: Delete user credentials
+      responses:
+        "204":
+          description: Successfully deleted user's credentials
+
+  /users:
+    post:
+      tags:
+        - UserManagement
+      summary: Add a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: Successfully created a new user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      tags:
+        - UserManagement
+      summary: Delete all users
+      responses:
+        "204":
+          description: Successfully deleted all users
+
+  /users/{userUID}:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - UserManagement
+      summary: Get a user
+      responses:
+        "200":
+          description: Successfully retrived a user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      tags:
+        - UserManagement
+      summary: Update a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Successfully updated a user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      tags:
+        - UserManagement
+      summary: Delete a user
+      responses:
+        "204":
+          description: Successfully deleted a user
+
+  /recommendations/{userUID}:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Recommender
+      summary: Get recommened products for specified user
+      responses:
+        "200":
+          description: Successfully retrieved recommended products for specified user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductList"
+
+  /products:
+    get:
+      tags:
+        - ProductCatalogue
+      summary: Get all products
+      responses:
+        "200":
+          description: Successfully retrieved all products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductList"
+    delete:
+      tags:
+        - ProductCatalogue
+      summary: Delete all products
+      responses:
+        "204":
+          description: Successfully deleted all products
+
+  /products/{storeUID}:
+    parameters:
+      - name: storeUID
+        in: path
+        required: true
+        description: Store's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - ProductCatalogue
+      summary: Get all products in the given store
+      responses:
+        "200":
+          description: Successfully retrieved all products in the given store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductList"
+    post:
+      tags:
+        - ProductCatalogue
+      summary: Add a new product to the store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "201":
+          description: Successfully added a new product to the store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      tags:
+        - ProductCatalogue
+      summary: Delete all products from the given store
+      responses:
+        "204":
+          description: Successfully deleted all products from the given store
+
+  /products/{storeUID}/{productUID}:
+    parameters:
+      - name: storeUID
+        in: path
+        required: true
+        description: Store's UID
+        schema:
+          type: string
+      - name: productUID
+        in: path
+        required: true
+        description: Product's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - ProductCatalogue
+      summary: Get a product from the given store
+      responses:
+        "200":
+          description: Successfully retreived a product from the given store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      tags:
+        - ProductCatalogue
+      summary: Update a product in the given store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: Successfully updated a product in the given store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      tags:
+        - ProductCatalogue
+      summary: Delete a product from the given store
+      responses:
+        "204":
+          description: Successfully deleted a product from the given store
+
+  /stores:
+    get:
+      tags:
+        - Store
+      summary: Get all stores
+      responses:
+        "200":
+          description: Successfully retrieved all stores
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreList"
+    post:
+      tags:
+        - Store
+      summary: Add a new store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Store"
+      responses:
+        "201":
+          description: Successfully created a new store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+    delete:
+      tags:
+        - Store
+      summary: Delete all stores
+      responses:
+        "204":
+          description: Successfully deleted all stores
+
+  /stores/{storeUID}:
+    parameters:
+      - name: storeUID
+        in: path
+        required: true
+        description: Store's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Store
+      summary: Get a store
+      responses:
+        "200":
+          description: Successfully retrieved a store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+    put:
+      tags:
+        - Store
+      summary: Update a store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Store"
+      responses:
+        "200":
+          description: Successfully updated a store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+    delete:
+      tags:
+        - Store
+      summary: Delete a store
+      responses:
+        "204":
+          description: Successfully deleted a store
+
+  /articles:
+    get:
+      tags:
+        - News
+      summary: Get all articles
+      responses:
+        "200":
+          description: Successfully retrieved all articles
+          content:
+            applications/json:
+              schema:
+                $ref: "#/components/schemas/ArticleList"
+    post:
+      tags:
+        - News
+      summary: Add a new article
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Article"
+      responses:
+        "201":
+          description: Successfully created a new article
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+    delete:
+      tags:
+        - News
+      summary: Delete all articles
+      responses:
+        "204":
+          description: Successfully deleted all articles
+
+  /articles/{articleUID}:
+    parameters:
+      - name: articleUID
+        in: path
+        required: true
+        description: Article's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - News
+      summary: Get an article
+      responses:
+        "200":
+          description: Successfully retrived an article
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+    put:
+      tags:
+        - News
+      summary: Update an article
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Article"
+      responses:
+        "200":
+          description: Successfully updated an article
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+    delete:
+      tags:
+        - News
+      summary: Delete an article
+      responses:
+        "204":
+          description: Successfully deleted an article
+
+  /favorites/{userUID}:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Favorites
+      summary: Get user's favorites
+      responses:
+        "200":
+          description: Successfully retrieved user's favorites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserFavoritesList"
+    post:
+      tags:
+        - Favorites
+      summary: Add a new product to user's favorites
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "201":
+          description: Successfully added a new product to user's favorites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      tags:
+        - Favorites
+      summary: Delete user's favorite products
+      responses:
+        "204":
+          description: Successfully deleted user's favorite products
+
+  /favorites/{userUID}/{productUID}:
+    parameters:
+      - name: userUID
+        in: path
+        required: true
+        description: User's UID
+        schema:
+          type: string
+      - name: productUID
+        in: path
+        required: true
+        description: Product's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Favorites
+      summary: Get a product from user's favorites
+      responses:
+        "200":
+          description: Successfully retrieved a product from user's favorites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      tags:
+        - Favorites
+      summary: Update a product from user's favorites
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: Successfully updated a product from user's favorites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      tags:
+        - Favorites
+      summary: Delete a product from user's favorites
+      responses:
+        "204":
+          description: Successfully delted a product from user's favorites
+
+  /feedback/{productUID}:
+    parameters:
+      - name: productUID
+        in: path
+        required: true
+        description: Product's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Feedback
+      summary: Get product's reviews
+      responses:
+        "200":
+          description: Successfully retrieved product's reviews
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewList"
+    post:
+      tags:
+        - Feedback
+      summary: Add a new review for a given product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      responses:
+        "201":
+          description: Successfully created a new review for a given product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+    delete:
+      tags:
+        - Feedback
+      summary: Delete product's reviews
+      responses:
+        "204":
+          description: Successfully delted product's reviews
+
+  /feedback/{productUID}/{reviewUID}:
+    parameters:
+      - name: productUID
+        in: path
+        required: true
+        description: Product's UID
+        schema:
+          type: string
+      - name: reviewUID
+        in: path
+        required: true
+        description: Review's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Feedback
+      summary: Get a review for a given product
+      responses:
+        "200":
+          description: Successfully retrived a review for a given product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+    put:
+      tags:
+        - Feedback
+      summary: Update a review for a given product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      responses:
+        "200":
+          description: Successfully updated a review for a given product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+    delete:
+      tags:
+        - Feedback
+      summary: Delete a review for a given product
+      responses:
+        "204":
+          description: Successfully delted a review for a given product
+
+  /statistics:
+    get:
+      tags:
+        - Statistics
+      summary: Get all statistics
+      responses:
+        "200":
+          description: Successfully retrieved all statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatisticList"
+    delete:
+      tags:
+        - Statistics
+      summary: Delete all statistics
+      responses:
+        "204":
+          description: Successfully deleted all statistics
+
+  /statistics/{type}:
+    parameters:
+      - name: type
+        in: path
+        required: true
+        description: Statistic's type
+        schema:
+          type: string
+          enum:
+            - positive
+            - negative
+    get:
+      tags:
+        - Statistics
+      summary: Get all statistics of specified type
+      responses:
+        "200":
+          description: Successfully retrieved all statistics of specified type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatisticList"
+    post:
+      tags:
+        - Statistics
+      summary: Create a new statistic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Statistic"
+      responses:
+        "201":
+          description: Successfully created a new statistic
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistic"
+    delete:
+      tags:
+        - Statistics
+      summary: Delete all statistics of specified type
+      responses:
+        "204":
+          description: Successfully deleted all statistics of specified type
+
+  /statistics/{type}/{statisticUID}:
+    parameters:
+      - name: type
+        in: path
+        required: true
+        description: Statistic's type
+        schema:
+          type: string
+          enum:
+            - positive
+            - negative
+      - name: statisticUID
+        in: path
+        required: true
+        description: Statistic's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Statistics
+      summary: Retrieve a statistic of given type
+      responses:
+        "200":
+          description: Successfully retrieved a statistic of given type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistic"
+    put:
+      tags:
+        - Statistics
+      summary: Update a statistic of given type
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Statistic"
+      responses:
+        "200":
+          description: Successfully updated a statistic of given type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistic"
+    delete:
+      tags:
+        - Statistics
+      summary: Delete a statistic of given type
+      responses:
+        "204":
+          description: Successfully deleted a statistic of given type
+
+  /issues:
+    get:
+      tags:
+        - Issue
+      summary: Get all issues
+      responses:
+        "200":
+          description: Successfully retrived all issues
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IssueList"
+    post:
+      tags:
+        - Issue
+      summary: Add a new issue
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Issue"
+      responses:
+        "201":
+          description: Successfully created a new issue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+    delete:
+      tags:
+        - Issue
+      summary: Delete all issues
+      responses:
+        "204":
+          description: Successfully deleted all issues
+
+  /issues/{issueUID}:
+    parameters:
+      - name: issueUID
+        in: path
+        required: true
+        description: Issue's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Issue
+      summary: Get an issue
+      responses:
+        "200":
+          description: Successfully retrived an issue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+    put:
+      tags:
+        - Issue
+      summary: Update an issue
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Issue"
+      responses:
+        "200":
+          description: Successfully updated an issue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+    delete:
+      tags:
+        - Issue
+      summary: Delete an issue
+      responses:
+        "204":
+          description: Successfully deleted an issue
+
+  /prices/{storeUID}:
+    parameters:
+      - name: storeUID
+        in: path
+        required: true
+        description: Store's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Price
+      summary: Get all product prices in the given store
+      responses:
+        "200":
+          description: Successfully retrived all products' prices in the given store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPriceList"
+    post:
+      tags:
+        - Price
+      summary: Add a new product price in the given store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductPrice"
+      responses:
+        "201":
+          description: Successfully created a new product price
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPrice"
+    delete:
+      tags:
+        - Price
+      summary: Delete all products' prices in the given store
+      responses:
+        "204":
+          description: Successfully deleted all products' prices in the given store
+
+  /prices/{storeUID}/{productUID}:
+    parameters:
+      - name: storeUID
+        in: path
+        required: true
+        description: Store's UID
+        schema:
+          type: string
+      - name: productUID
+        in: path
+        required: true
+        description: Product's UID
+        schema:
+          type: string
+    get:
+      tags:
+        - Price
+      summary: Get product price in the given store
+      responses:
+        "200":
+          description: Successfully retrived a product price in the given store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPrice"
+    put:
+      tags:
+        - Price
+      summary: Update product price in the given store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductPrice"
+      responses:
+        "200":
+          description: Successfully updated product price in the given store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPrice"
+    delete:
+      tags:
+        - Price
+      summary: Delete product price in the given store
+      responses:
+        "204":
+          description: Successfully deleted product price in the given store
+
+externalDocs:
+  description: Link to GitHub repository
+  url: "https://github.com/dawidborkowski/aw-project.git"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        userUID:
+          type: string
+          description: User's UID
+        name:
+          type: string
+          description: User's name
+        surname:
+          type: string
+          description: User's surname
+        email:
+          type: string
+          description: User's email
+        imageURL:
+          type: string
+          description: User's profile image URL
+    Product:
+      type: object
+      properties:
+        productUID:
+          type: string
+          description: Product's UID
+        name:
+          type: string
+          description: Name of the product
+        category:
+          type: string
+          description: Product's category
+          enum:
+            - pork
+            - beef
+            - chicken
+            - turkey
+            - lamb
+            - readyToCook
+        isFeatured:
+          type: boolean
+          description: Whether product should be curently displayed as a featured product
+        imageURL:
+          type: string
+          description: Product's image URL
+        imageFeaturedURL:
+          type: string
+          description: Product's featured image URL
+        supplier:
+          type: string
+          description: Supplier of meat
+        origin:
+          type: string
+          description: Name of the region of origin
+        forage:
+          type: string
+          description: Type of forage that animal ate
+        sex:
+          type: string
+          description: Sex of animal from which the meat is coming from
+        age:
+          type: string
+          description: Age of animal at moment of slaughter
+        breed:
+          type: string
+          description: Name of the animal breed
+        productDescription:
+          type: string
+          description: Detailed description about animal's living, health and treatment conditions
+        waeningWeight:
+          type: number
+          description: Weight of animal at moment of birth
+        slaughterWeight:
+          type: number
+          description: Weight of animal at moment of slaughter
+        carcassYield:
+          type: number
+          description: Percentage of the animal that was fit for selling
+        carcassWeight:
+          type: number
+          description: Weight of the animal that was fit for selling
+        averageDailyGain:
+          type: number
+          description: Daily body weight increase over a specified period of time
+        saleValue:
+          type: number
+          description: Value of an animal at moment of selling
+        totalCost:
+          type: number
+          description: Total cost of animal living, includes feed, veterinary care, housing, labor, and any other associated costs.
+        grossMarign:
+          type: number
+          description: Profit made on animal
+    ProductList:
+      type: object
+      properties:
+        storeUID:
+          type: string
+          description: Store UID
+          default: null
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+    Store:
+      type: object
+      properties:
+        storeUID:
+          type: string
+          description: Store's UID
+        name:
+          type: string
+          description: Name of the store
+        address:
+          type: string
+          description: Address of the store
+        categories:
+          type: array
+          items:
+            type: string
+            enum:
+              - pork
+              - beef
+              - chicken
+              - turkey
+              - lamb
+              - readyToCook
+          description: Categories available in the store
+    StoreList:
+      type: object
+      properties:
+        stores:
+          type: array
+          items:
+            $ref: "#/components/schemas/Store"
+    Article:
+      type: object
+      properties:
+        articleUID:
+          type: string
+          description: Article's UID
+        title:
+          type: string
+          description: Title of the article
+        author:
+          type: string
+          description: Name of the author
+        date:
+          type: string
+          format: date
+          description: Publishing date of the article
+        content:
+          type: string
+          description: Content of the article
+        photoURL:
+          type: string
+          description: Article photo's URL
+    ArticleList:
+      type: object
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+    Statistic:
+      type: object
+      properties:
+        statisticUID:
+          type: string
+          description: Statistic's UID
+        title:
+          type: string
+          description: Title of the statistic
+        value:
+          type: number
+          description: Numeric value associated with the statistic
+        unit:
+          type: string
+          description: Unit associated with the value, could be for example % or t(toneladas)
+        startYear:
+          type: integer
+          description: Starting year of the period of data for the given statistc
+        endYear:
+          type: integer
+          description: Ending year of the period of data for the given statistic
+        displayType:
+          type: string
+          description: Type of the diagram that should be displayed
+          enum:
+            - barChart
+            - smallCircle
+            - bigCircle
+            - scale
+    StatisticList:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of statistic list
+          enum:
+            - negative
+            - positive
+            - all
+        statistics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Statistic"
+    UserFavoritesList:
+      type: object
+      properties:
+        userUID:
+          type: string
+          description: UID of the user related to this list of products
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+    Review:
+      type: object
+      properties:
+        reviewUID:
+          type: string
+          description: Review's UID
+        userUID:
+          type: string
+          description: User's UID
+        productUID:
+          type: string
+          description: Product's UID
+        userName:
+          type: string
+          description: Name of user that left review
+        userSurname:
+          type: string
+          description: Surname of user that left review
+        value:
+          type: number
+          description: Value of review
+    ReviewList:
+      type: object
+      properties:
+        productUID:
+          type: string
+          description: Product's UID
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+    Issue:
+      type: object
+      properties:
+        issueUID:
+          type: string
+          description: Issue's UID
+        userUID:
+          type: string
+          description: User's UID
+        issueType:
+          type: string
+          description: Type of reported issue
+          enum:
+            - Issue
+            - Complain
+            - FeatureRequest
+            - HelpRequest
+        resolved:
+          type: boolean
+          description: Boolean value indicating whether the issue is resolved
+        content:
+          type: string
+          description: Conent of the issue
+    IssueList:
+      type: object
+      properties:
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/Issue"
+    ProductPrice:
+      type: object
+      properties:
+        productUID:
+          type: string
+          description: Product's UID
+        storeUID:
+          type: string
+          description: Store's UID
+        price:
+          type: number
+          description: Product's price
+        currency:
+          type: string
+          description: Price currency
+        discount:
+          type: number
+          description: Discount value
+        discountName:
+          type: string
+          description: Name of discount type
+          example: Christmas Sale
+    ProductPriceList:
+      type: object
+      properties:
+        storeUID:
+          type: string
+          description: Store's UID
+          default: null
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductPrice"
